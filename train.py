@@ -20,13 +20,20 @@ df["TotalCharges"] = pd.to_numeric(df["TotalCharges"], errors="coerce")
 df["TotalCharges"] = df["TotalCharges"].fillna(df["TotalCharges"].median())
 
 # =========================
-# 2. Encode Categorical Columns
+# 2. Encode Categorical Columns (FIXED)
 # =========================
-le = LabelEncoder()
+le_dict = {}
 
 for col in df.columns:
     if df[col].dtype == "object":
+        le = LabelEncoder()
         df[col] = le.fit_transform(df[col])
+        le_dict[col] = le
+
+# Save encoders
+pickle.dump(le_dict, open("encoder.pkl", "wb"))
+
+
 
 # =========================
 # 3. Split Features & Target
@@ -78,6 +85,8 @@ def risk_level(prob):
 results["Risk_Level"] = results["Churn_Probability"].apply(risk_level)
 
 print(results.head())
+#Save Feature Column
+pickle.dump(X.columns.tolist(), open("features.pkl", "wb"))
 # =========================
 # 7. Save Model
 # =========================
